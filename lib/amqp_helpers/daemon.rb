@@ -37,11 +37,12 @@ module AMQPHelpers
         queue = initialize_queue(channel)
         queue.subscribe(&handler)
 
-        show_stopper = Proc.new do
-          logger.info "Signal INT received. #{name} is going down... I REPEAT: WE ARE GOING DOWN!"
+        show_stopper = Proc.new do |signal|
+          logger.info "Signal #{signal} received. #{name} is going down... I REPEAT: WE ARE GOING DOWN!"
           connection.close { EventMachine.stop }
         end
         Signal.trap 'INT', show_stopper
+        Signal.trap 'TERM', show_stopper
       end
     end
 
