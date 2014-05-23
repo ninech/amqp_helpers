@@ -104,5 +104,6 @@ module AMQPHelpers
         end
       end
     end
+
   end
 end
