@@ -37,7 +37,10 @@ module AMQPHelpers
         queue = initialize_queue(channel)
         queue.subscribe(&handler)
 
-        show_stopper = Proc.new(&method(:handle_signal_int))
+        show_stopper = Proc.new do
+          logger.info "Signal INT received. #{name} is going down... I REPEAT: WE ARE GOING DOWN!"
+          connection.close { EventMachine.stop }
+        end
         Signal.trap 'INT', show_stopper
       end
     end
@@ -67,11 +70,6 @@ module AMQPHelpers
     end
 
     protected
-    def handle_signal_int
-      logger.info "Signal INT received. #{name} is going down... I REPEAT: WE ARE GOING DOWN!"
-      connection.close { EventMachine.stop }
-    end
-
     def handle_tcp_connection_failure(settings)
       logger.error "[network failure] Could not connect to #{settings[:host]}:#{settings[:port]}"
       raise ConnectionError, "Failed to connect!"
