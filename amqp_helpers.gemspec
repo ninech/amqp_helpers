@@ -3,7 +3,7 @@ Gem::Specification.new do |s|
   s.version     = File.read(File.expand_path('../VERSION', __FILE__)).strip
   s.authors     = ['Nils Caspar', 'Raffael Schmid', 'Samuel Sieg']
   s.email       = 'development@nine.ch'
-  s.homepage    = 'http://nine.ch/'
+  s.homepage    = 'https://github.com/ninech/amqp_helpers'
   s.license     = 'MIT'
   s.summary     = 'Simple helpers to achieve various AMQP tasks.'
   s.description = s.summary
