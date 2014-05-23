@@ -30,6 +30,7 @@ module AMQPHelpers
         connection.on_error(&method(:handle_connection_error))
         channel = initialize_channel(connection)
         connection.on_tcp_connection_loss(&method(:handle_tcp_connection_loss))
+        connection.on_recovery(&method(:handle_recovery))
 
         queue = initialize_queue(channel)
         queue.subscribe(&handler)
@@ -86,6 +87,10 @@ module AMQPHelpers
     def handle_tcp_connection_loss(connection, settings)
       logger.error '[network failure] Trying to reconnect...'
       connection.reconnect(false, 10)
+    end
+
+    def handle_recovery(connection, settings)
+      logger.info 'Yay, reconnected! All systems go!'
     end
 
     def initialize_channel(connection)
