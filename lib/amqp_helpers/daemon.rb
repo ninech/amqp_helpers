@@ -3,7 +3,7 @@ require 'logger'
 require 'socket'
 require 'syslogger'
 
-module AmqpHelpers
+module AMQPHelpers
   class Daemon
 
     class Error < StandardError; end

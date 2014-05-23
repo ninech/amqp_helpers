@@ -1,2 +1,2 @@
-module AmqpHelpers
+module AMQPHelpers
 end
