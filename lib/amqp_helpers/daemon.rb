@@ -29,6 +29,7 @@ module AMQPHelpers
       tcp_connection_failure_handler = Proc.new(&method(:handle_tcp_connection_failure))
       amqp_params = { on_tcp_connection_failure: tcp_connection_failure_handler}.merge(connection_params)
       AMQP.start(amqp_params) do |connection|
+        connection.on_open(&method(:handle_open))
         connection.on_error(&method(:handle_connection_error))
         channel = initialize_channel(connection)
         connection.on_tcp_connection_loss(&method(:handle_tcp_connection_loss))
@@ -74,6 +75,10 @@ module AMQPHelpers
     def handle_tcp_connection_failure(settings)
       logger.error "[network failure] Could not connect to #{settings[:host]}:#{settings[:port]}"
       raise ConnectionError, "Failed to connect!"
+    end
+
+    def handle_open
+      logger.info "#{name} successfully opened AMQP connection"
     end
 
     def handle_connection_error(connection, connection_close)
