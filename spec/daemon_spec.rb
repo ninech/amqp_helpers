@@ -46,6 +46,7 @@ describe AMQPHelpers::Daemon do
       connection.stub(:open?).and_return(true)
       connection.stub(:channel_max).and_return(0)
       connection.stub(:on_connection)
+      connection.stub(:on_open)
       connection.stub(:on_recovery)
       connection.stub(:on_error)
       connection.stub(:on_tcp_connection_loss)
