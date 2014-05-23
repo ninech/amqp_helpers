@@ -10,7 +10,7 @@ module AMQPHelpers
     class ConnectionError < Error; end
     class ChannelError < Error; end
 
-    DEFAULT_RECONNECT_WAIT_TIME = 30
+    DEFAULT_RECONNECT_WAIT_TIME = 10
 
     attr_accessor :name, :exchanges, :connection_params
     attr_writer :environment, :logger, :queue_name, :queue_params, :reconnect_wait_time
@@ -26,7 +26,9 @@ module AMQPHelpers
 
     def start(&handler)
       logger.info "Starting #{name} daemon..."
-      AMQP.start(connection_params) do |connection|
+      tcp_connection_failure_handler = Proc.new(&method(:handle_tcp_connection_failure))
+      amqp_params = { on_tcp_connection_failure: tcp_connection_failure_handler}.merge(connection_params)
+      AMQP.start(amqp_params) do |connection|
         connection.on_error(&method(:handle_connection_error))
         channel = initialize_channel(connection)
         connection.on_tcp_connection_loss(&method(:handle_tcp_connection_loss))
@@ -35,10 +37,7 @@ module AMQPHelpers
         queue = initialize_queue(channel)
         queue.subscribe(&handler)
 
-        show_stopper = Proc.new do
-          logger.info "Signal INT received. #{name} is going down... I REPEAT: WE ARE GOING DOWN!"
-          connection.close { EventMachine.stop }
-        end
+        show_stopper = Proc.new(&method(:handle_signal_int))
         Signal.trap 'INT', show_stopper
       end
     end
@@ -68,6 +67,16 @@ module AMQPHelpers
     end
 
     protected
+    def handle_signal_int
+      logger.info "Signal INT received. #{name} is going down... I REPEAT: WE ARE GOING DOWN!"
+      connection.close { EventMachine.stop }
+    end
+
+    def handle_tcp_connection_failure(settings)
+      logger.error "[network failure] Could not connect to #{settings[:host]}:#{settings[:port]}"
+      raise ConnectionError, "Failed to connect!"
+    end
+
     def handle_connection_error(connection, connection_close)
       logger.error "[connection.close] Reply code = #{connection_close.reply_code}, reply text = #{connection_close.reply_text}"
       # check if graceful broker shutdown
@@ -86,7 +95,7 @@ module AMQPHelpers
 
     def handle_tcp_connection_loss(connection, settings)
       logger.error '[network failure] Trying to reconnect...'
-      connection.reconnect(false, 10)
+      connection.reconnect(false, reconnect_wait_time)
     end
 
     def handle_recovery(connection, settings)
