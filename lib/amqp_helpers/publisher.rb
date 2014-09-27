@@ -16,8 +16,6 @@ module AMQPHelpers
         exchange = connection.exchange(exchange_name, exchange_config[:params])
         exchange.publish(message.to_json,
                          key: routing_key,
-                         mandatory: false,
-                         immediate: false,
                          persistent: exchange_config[:params][:durable],
                          content_type: 'application/json')
       end
