@@ -1,4 +1,5 @@
 require 'bunny'
+require 'json'
 
 module AMQPHelpers
   class Publisher
@@ -23,6 +24,7 @@ module AMQPHelpers
     rescue => error
       Airbrake.notify_or_ignore(error) if defined?(Airbrake)
       Rails.logger.error("#{error.class}: #{error}") if defined?(Rails)
+      raise error
     end
   end
 end
