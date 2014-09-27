@@ -41,8 +41,10 @@ end
 
 ### Example
 
-It takes the same configuration hash as the daemon does. The second argument specifies
-which exchange configuration should be used. The third argument is the routing key.
+It takes the same configuration hash as the daemon does.
+* First argument of publish is the payload which will be JSON encoded.
+* Second arugment specifies the exchange configuration which should be used.
+* Third argument defines the routing key.
 
 ```ruby
 publisher = AMQPHelpers::Publisher.new({
