@@ -1,5 +1,4 @@
 require 'bunny'
-require 'json'
 
 module AMQPHelpers
   class Publisher
@@ -14,7 +13,7 @@ module AMQPHelpers
         return false unless exchange_config
 
         exchange = connection.exchange(exchange_name, exchange_config[:params])
-        exchange.publish(message.to_json,
+        exchange.publish(message,
                          key: routing_key,
                          persistent: exchange_config[:params][:durable],
                          content_type: 'application/json')
