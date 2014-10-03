@@ -32,7 +32,7 @@ describe AMQPHelpers::Publisher do
     context 'exchange specified' do
       it 'publishes the message' do
         expect(exchange_double).to receive(:publish).
-          with('"we are testing"', key: 'lala.will.exist', persistent: false, content_type: 'application/json')
+          with('we are testing', key: 'lala.will.exist', persistent: false, content_type: 'application/json')
 
         expect(instance.publish('we are testing', 'test-topic', 'lala.will.exist')).to eq(true)
       end
