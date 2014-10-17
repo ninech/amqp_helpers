@@ -24,7 +24,7 @@ module AMQPHelpers
       end
     end
 
-    def start(&handler)
+    def start(opts = {}, &handler)
       logger.info "Starting #{name} daemon..."
       tcp_connection_failure_handler = Proc.new(&method(:handle_tcp_connection_failure))
       amqp_params = { on_tcp_connection_failure: tcp_connection_failure_handler}.merge(connection_params)
@@ -36,7 +36,7 @@ module AMQPHelpers
         connection.on_recovery(&method(:handle_recovery))
 
         queue = initialize_queue(channel)
-        queue.subscribe(&handler)
+        queue.subscribe(opts, &handler)
 
         show_stopper = Proc.new do |signal|
           logger.info "Signal #{signal} received. #{name} is going down... I REPEAT: WE ARE GOING DOWN!"
