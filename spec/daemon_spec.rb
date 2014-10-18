@@ -76,5 +76,11 @@ describe AMQPHelpers::Daemon do
       queue.should_receive(:subscribe)
       block.call(connection)
     end
+
+    it 'enables you to use options (e.g. ack: true) for the subscribing process' do
+      subject.start(ack: true)
+      queue.should_receive(:subscribe).with(ack: true)
+      block.call(connection)
+    end
   end
 end
