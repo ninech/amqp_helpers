@@ -21,7 +21,7 @@ describe AMQPHelpers::Daemon do
         exchanges: {
           'test-topic' => {
             params: { type: :topic, durable: false },
-            bindings: [ { routing_key: 'lala.#' } ]
+            bindings: [{ routing_key: 'lala.#' }]
           }
         }
       }
